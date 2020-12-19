@@ -33,7 +33,7 @@ end
 figure
 imshow(img_ContoursEX1)
 title('SLIC results');
-%Çó½âÃ¿¸ö³¬ÏñËØÇøÓòÄÚµÄ¾Ö²¿´óÆø¹âÖµ
+%local atmospheric lightã€€for each super-pixels
 for sg=1:K-1
     n=1;
     for pi=1:h
@@ -53,7 +53,7 @@ for sg=1:K-1
     A=max(max(newimg(Index_A,:)));
     A=double(A);
     Anum(sg,1)=A;
-%Çó½âÃ¿¸ö³¬ÏñËØµÄÆ½¾ùÁÁ¶È£¨×÷Îª³¬ÏñËØºÏ²¢µÄ×¼Ôò£©
+%average density value for each pixel, which is used to merge super-pixels
     new=newimg;
     newgray=rgb2gray(new);
     newgray=double(newgray);
@@ -68,7 +68,7 @@ lightmax=max(light);
 lightmin=min(light);
 distance=fix((lightmax-lightmin)/5);
 % fprintf('%3d',distance);
-%------------------³¬ÏñËØºÏ²¢£¬²¢¼ÆËãºÏ²¢ºóÃ¿¸öÇøÓòÄÚµÄ´óÆø¹âÖµ-------------------------
+%------------------merge super-pixelsï¼Œ and compute local atmospheric light-------------------------
 dx = [-1, 0, 1, -1, 1, -1, 0, 1];
 dy = [-1, -1, -1, 0, 0, 1, 1, 1];
     for mr1=2:h-1
@@ -81,7 +81,6 @@ dy = [-1, -1, -1, 0, 0, 1, 1, 1];
                        a=klabels(mr1, mr2);
                        b=klabels(y1, x1);
                        if(abs(light(a,1)-light(b,1))<distance)
-                           %±éÀú£¬½«±êÇ©ÎªbµÄÏñËØµÄ±êÇ©¶¼ÖÃÎªa
                            for cor1=1:h
                                for cor2=1:w
                                    if(klabels(cor1,cor2)==b)
@@ -97,7 +96,7 @@ dy = [-1, -1, -1, 0, 0, 1, 1, 1];
             end        
         end
     end
-% ==========È¥Îíº¯Êı£¨Ğ´½øThreeAirLightHazeÀï£©=================
+% ==========function: ThreeAirLightHaze1, the dehaze algorithm=================
 tic
 out=ThreeAirLightHaze1(img,degree,m,ww,t0,klabels,Anum);
 toc
