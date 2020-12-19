@@ -5,7 +5,7 @@ numseeds = size(kseedsl);
 img_Lab = double(img_Lab);
 klabels = zeros(m_height, m_width);
 degree=3;
-%-----------------Çó³öAmap----------------------------
+%-----------------Amap, a feature used for SLIC----------------------------
 Amap=zeros(m_height, m_width);
 kh=floor(m_height/degree);
 kw=floor(m_width/degree);
@@ -27,7 +27,7 @@ kw=floor(m_width/degree);
         dark_col=reshape(dark_I,degree*degree,1);
         I_col=reshape(I_1,degree*degree,3);
         [dark_sort,Index]=sort(dark_col,'descend');
-        num_A=floor(degree*degree/2);%%%%%Ð¡Í¼Ïñ¿é³ß´ç´óÓÚ10£¬È¡³ý100£»³ß´ç´óÓÚ4Ð¡ÓÚ10£¬È¡³ý10
+        num_A=floor(degree*degree/2);%%%%%patch_size>10ï¼Œdivided by 100ï¼›4<patch_size<10ï¼Œdivided /10
         Index_A=Index(1:num_A);
         A=max(max(I_col(Index_A,:)));
         A=double(A);
@@ -39,10 +39,10 @@ kw=floor(m_width/degree);
     end
  end
 %--------------------------------------------------------
-%È¨ÖØ£¬ÓÃÓÚ¼ÆËã¾àÀëµÄÈ¨ÖØÏµÊý
+
 invwt = 1/((double(STEP)/double(compactness))*(double(STEP)/double(compactness)));
 numk = numseeds;
-for itr = 1: 10   %µü´ú´ÎÊý
+for itr = 1: 10   
     sigmal = zeros(numseeds(1,1), 1);
     sigmaa = zeros(numseeds(1,1), 1);
     sigmab = zeros(numseeds(1,1), 1);
@@ -51,13 +51,13 @@ for itr = 1: 10   %µü´ú´ÎÊý
     clustersize = zeros(numseeds(1,1), 1);
     inv = zeros(numseeds(1,1), 1);
     distvec = double(100000*ones(m_height, m_width));
-    %¸ù¾Ýµ±Ç°ÖÖ×ÓµãÐÅÏ¢¼ÆËãÃ¿Ò»¸öÏñËØµÄ¹éÊô
+   
     for n = 1: numk
         y1 = max(1, kseedsy(n, 1)-STEP);
         y2 = min(m_height, kseedsy(n, 1)+STEP);
         x1 = max(1, kseedsx(n, 1)-STEP);
         x2 = min(m_width, kseedsx(n, 1)+STEP);
-        %°´ÏñËØ¼ÆËã¾àÀë
+       
         for y = y1: y2
             for x = x1: x2
                 %dist_lab = abs(img_Lab(y, x, 1)-kseedsl(n))+abs(img_Lab(y, x, 2)-kseedsa(n))+abs(img_Lab(y, x, 3)-kseedsb(n));
@@ -66,7 +66,7 @@ for itr = 1: 10   %µü´ú´ÎÊý
 %                  Da=abs(Amap(y,x)-Amap(fix(kseedsy(n, 1)),fix(kseedsx(n, 1))));
                 Da=(Amap(y,x)-Amap(fix(kseedsy(n, 1)),fix(kseedsx(n, 1))))^2;
                 dist = dist_lab + dist_xy*invwt+Da;
-                %ÔÚÖÜÎ§×î¶àËÄ¸öÖÖ×ÓµãÖÐÕÒµ½×îÏàËÆµÄ ±ê¼Çºó´æÈëklabels
+                
                 %m = (y-1)*m_width+x;
                 if (dist<distvec(y, x))
                     distvec(y, x) = dist;
@@ -75,8 +75,7 @@ for itr = 1: 10   %µü´ú´ÎÊý
             end
         end
     end
-    %ÖØÐÂ¼ÆËãÖÖ×ÓµãÎ»ÖÃ Ê¹ÆäÏòÌÝ¶È×îÐ¡µØ·½ÒÆ¶¯
-    %Ã¿Ò»¸öÇøÓòµÄÏñËØ¸öÊý£¬Çó³öÒ»¸öÇøÓòÄÚµÄÆ½¾ùÎ»ÖÃ¡¢ÎåÎ¬ÏòÁ¿µÄÆ½¾ùÖµ£¬×÷ÎªÐÂµÄÖÖ×ÓµãµÄÐÅÏ¢
+    
     ind = 1;
     for r = 1: m_height
         for c = 1: m_width
