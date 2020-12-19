@@ -4,7 +4,7 @@ dx = [-1, 0, 1, 0];
 dy = [0, -1, 0, 1];
 [m_height, m_width, m_channel] = size(img_Lab);
 [M, N] = size(labels);
-SUPSZ = (m_height*m_width)/K;   %标准区域面积
+SUPSZ = (m_height*m_width)/K;  
 nlabels = (-1)*ones(M, N);
 
 label = 1;
@@ -16,14 +16,10 @@ n = 1;
 
 for j = 1: m_height
     for k = 1: m_width
-        %逐点寻找未标记的区域
         if (0>nlabels(m, n))
-            %找到一个新区域后用label标记该区域的起点
             nlabels(m, n) = label;
-            %开始一个新的分割 记录起点坐标
             xvec(1, 1) = k;
             yvec(1, 1) = j;
-            %如果起点与某个已知区域相连 用adjlabel记录该区域编号 如果当前区域过小则与相邻区域合并
             for i = 1: 4
                 x = xvec(1, 1)+dx(1, i);
                 y = yvec(1, 1)+dy(1, i);
@@ -33,7 +29,7 @@ for j = 1: m_height
                     end
                 end
             end
-            %逐点搜索当前区域的所有点 将当前区域的坐标存到xvec和yvec中 统计区域面积
+            
             count = 2;
             c = 1;
             while (c<=count)
@@ -51,25 +47,25 @@ for j = 1: m_height
                 end
                 c = c+1;
             end
-            %过小的区域与相邻的区域合并
+            
             if (count<(SUPSZ/4))
                 for c = 1: (count-1)
                     nlabels(yvec(c, 1), xvec(c, 1)) = adjlabel;
                 end
-                %label编号要取消 改为上一个编号重新计数
+                
                 label = label-1;
             end
-            %标签计数器自加
+            
             label = label+1;
-            %%%%%%%%%%%%%%
+            
         end
-        %主计数器自加
+       
         n = n+1;
         if (n>m_width)
             n = 1;
             m = m+1;
         end
-        %%%%%%%%%%%%
+    
     end
 end
 
