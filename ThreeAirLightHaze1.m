@@ -1,11 +1,11 @@
-% 求解大气光值A的函数针对每一块去雾
+% dehaze
 function [out]=ThreeAirLightHaze1(img,degree,m,ww,t0,klabels,Anum)
 
 [h,w,s]=size(img);
 
 for itr=1:5
 
-%自适应去雾停止    
+   
     under_50=0;
     for i=1:h
         for j=1:w
@@ -27,7 +27,7 @@ for itr=1:5
         countlabel=0;
         img=double(img);
 
-        % 暗通道图
+        
         dark_I1=dark_I;
         kh=floor(h/degree);
         kw=floor(w/degree);
@@ -50,7 +50,7 @@ for itr=1:5
                 if label>maxV
                     maxV=label;
                 end;
-                %拼接
+                %splice
                 if(op2==1)
                     I_linkcol=darkI1_1;
                 else
@@ -64,7 +64,7 @@ for itr=1:5
             end;
         end;
         I_row=I_linkrow;
-        % 余行余列拼接
+        % splice
         if(lh==0&&lw==0)
             I_row=uint8(I_row);
         end;
@@ -92,10 +92,10 @@ for itr=1:5
                 dark_channel1=double(dark_channel(opp1:opp1+degree-1,opp2:opp2+degree-1));
 %                 numa=klabels(opp1,opp2);
 %                 A=Anum(numa,1);
-                  %大气光值
+                  
                   A=150; 
                   t1=1-ww*(dark_channel1/A);
-                %拼接
+                %splice
                 if(opp2==1)
                     Tlink=t1;
                 else
@@ -108,14 +108,14 @@ for itr=1:5
                 t=cat(1,t,Tlink);
             end;
          end;
-         %优化透射率
+         %optimize t
          for opp11=1:degree:(kh-1)*degree+1
             for opp22=1:degree:(kw-1)*degree+1
                 tt=double(t(opp11:opp11+degree-1,opp22:opp22+degree-1));
                 dark_II=double(dark_I(opp11:opp11+degree-1,opp22:opp22+degree-1));
                 I_rowR=double(I_row(opp11:opp11+degree-1,opp22:opp22+degree-1));
                 T=tt-0.001*(dark_II-I_rowR).*tt;
-                %拼接
+                
                 if(opp22==1)
                     T1=T;
                 else
