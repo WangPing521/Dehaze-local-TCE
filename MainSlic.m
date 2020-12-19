@@ -3,21 +3,20 @@ close all;
 clc;
 clear all;
 
-% 控制区域划分
-K =16; %可调
-m_compactness = 55; %可调
+% parameters related with the region division
+K =16; % tunning parameter, the number of seeds for SLIC clusters
+m_compactness = 55; % tunning parameter, SLIC algorithm related parameter
 
 img = imread('45_hazy.jpg');
 figure
 imshow(img);
-title('有雾图像');
+title('the inut hazy image');
 
-%三个元素：图像的高、图像的宽、图像的通道数
 img_size = size(img);   
 
-%转换到LAB色彩空间
-cform = makecform('srgb2lab');       %rgb空间转换成lab空间 matlab自带的用法
-img_Lab = applycform(img, cform);    %rgb转换成lab空间
+%shift the image from RGB to LAB space
+cform = makecform('srgb2lab');       
+img_Lab = applycform(img, cform);    
 
 img_sz = img_size(1)*img_size(2);
 superpixel_sz = img_sz/K;
@@ -27,8 +26,7 @@ ystrips = uint32(img_size(1)/STEP);
 xstrips_adderr = double(img_size(2))/double(xstrips);
 ystrips_adderr = double(img_size(1))/double(ystrips);
 numseeds = xstrips*ystrips;
-%种子点xy信息初始值为晶格中心亚像素坐标
-%种子点Lab颜色信息为对应点最接近像素点的颜色通道值
+
 kseedsx = zeros(numseeds, 1);
 kseedsy = zeros(numseeds, 1);
 kseedsl = zeros(numseeds, 1);
@@ -46,12 +44,12 @@ for y = 1: ystrips
     end
 end
 n = 1;
-%根据种子点计算超像素分区
+%compute super-pixels
 klabels = PerformSuperpixelSLIC(img,img_Lab, kseedsl, kseedsa, kseedsb, kseedsx, kseedsy, STEP, m_compactness);
 img_Contours = DrawContoursAroundSegments(img, klabels);
-%合并小的分区
+%merge small regions
 nlabels = EnforceLabelConnectivity(img_Lab, klabels, K); 
-%根据得到的分区标签找到边界(contain the dehazing algorithm)
+%draw the contour of each region and dehaze
 [light,Anum,img_ContoursEX] = DrawContoursAroundSegments_EX(img, nlabels,numseeds);
 toc
         
